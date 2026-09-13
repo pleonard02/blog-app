@@ -1,20 +1,18 @@
 import { createContext } from "react";
-
-interface User {
-    id: string;
-    username: string;
-}
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface AuthContextType {
-    user: User | null;
-    isAuthenticated: true | false;
-    login: () => void;
-    logout: () => void;
+    user: SupabaseUser | null;
+    isAuthenticated: boolean;
+    isLoading: boolean,
+    login: (username: string, password: string) => Promise<void>;
+    logout: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     user: null,
     isAuthenticated: false,
-    login: () => console.warn("Login function"),
-    logout: () => console.warn("Logout function"),
+    isLoading: true,
+    login: async () => {},
+    logout: async () => {},
 });

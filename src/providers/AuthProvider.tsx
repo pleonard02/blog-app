@@ -1,24 +1,68 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
 import { AuthContext } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 interface AuthProviderProps {
-    children: ReactNode
+    children: ReactNode;
 }
 
+function AuthProvider({ children }: AuthProviderProps) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-function AuthProvider({children}: AuthProviderProps) {
-    const [user, setUser] = useState({id: "101", username: "SoloDev101"});
-    
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data }) => {
+            setUser(data.session?.user ?? null);
+            setIsLoading(false);
+        });
 
-    const login = () => setIsAuthenticated(true);
-    const logout = () => setIsAuthenticated(false);
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null);
+            setIsLoading(false);
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+    const login = async (username: string, password: string) => {
+        const email = `${username}@recipeblog.example`;
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+
+        if (error) {
+            throw error;
+        }
+    };
+
+    const logout = async () => {
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            throw error;
+        }
+    };
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, login, logout, user}}>
+        <AuthContext.Provider
+            value={{
+                user,
+                isAuthenticated: Boolean(user),
+                isLoading,
+                login,
+                logout,
+            }}
+        >
             {children}
         </AuthContext.Provider>
-    )
+    );
 }
 
 export default AuthProvider;

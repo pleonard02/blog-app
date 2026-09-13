@@ -6,13 +6,21 @@ import NotFoundPage from './pages/NotFound';
 import NavBar from './components/NavBar';
 import BlogPage from './pages/BlogPage';
 import LoginPage from './pages/LoginPage';
+import recipeBlogLogo from './assets/recipe_blog_logo.png'
 
 function App() {
 
   return (
     <div>
       <header>
-        <h1>Blog App</h1>
+        <div className='flex flex-row items-end gap-3 px-6 py-4'>
+          <img
+            src={recipeBlogLogo}
+            alt=""
+            className='h-24 w-24 object-contain'
+          />
+          <h2 className='m-0 pb-1 text-4xl leading-none font-[Homemade_Apple] text-[#a3a380] font-medium'>Tl;dr Kitchen</h2>
+        </div>
         <NavBar />
       </header>
       
